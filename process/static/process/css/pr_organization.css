@@ -1,0 +1,44 @@
+#container {
+  min-width: 300px;
+  margin: 1em auto;
+  border: 1px solid silver;
+}
+
+#container h4 {
+  text-transform: none;
+  font-size: 14px;
+  font-weight: normal;
+}
+
+#container p {
+  font-size: 13px;
+  line-height: 16px;
+}
+
+h4 {
+  font-size: 9.5px !important;
+}
+
+@media (min-width: 576px) {
+  h4 {
+    font-size: 12px !important;
+  }
+}
+
+@media (min-width: 768px) {
+  h4 {
+    font-size: 12.5px !important;
+  }
+}
+
+@media (min-width: 992px) {
+  h4 {
+    font-size: 15px !important;
+  }
+}
+
+@media (min-width: 1200px) {
+  h4 {
+    font-size: 18px !important;
+  }
+}

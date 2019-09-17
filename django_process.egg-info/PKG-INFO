@@ -1,0 +1,15 @@
+Metadata-Version: 2.1
+Name: django-process
+Version: 2.2
+Summary: A package for create process and tasks on django
+Home-page: https://git.binkfe.com/jesrat/django-process
+Author: Josue Gomez
+Author-email: jgomez@binkfe.com
+License: UNKNOWN
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Framework :: Django
+Classifier: Operating System :: OS Independent
+Description-Content-Type: text/markdown
