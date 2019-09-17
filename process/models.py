@@ -89,6 +89,7 @@ class Task(models.Model):
     is_active = models.BooleanField(_("active"), default=True)
     level = models.PositiveIntegerField(_("diagram level"), default=0)
     offset = models.CharField(_("diagram offset"), max_length=5, default='0%', validators=[offset_validator])
+    log_file = models.CharField(_("log file"), max_length=20)
     code = models.TextField(_("code"))
     objects = models.Manager()
 
@@ -158,7 +159,7 @@ class Job(models.Model):
         return f'{self.process.name} [{self.dt_start}][{self.status}]'
 
     class Meta:
-        db_table = 'wf_jobs'
+        db_table = 'pr_jobs'
         verbose_name = _('job')
         verbose_name_plural = _('jobs')
         ordering = ['-id']

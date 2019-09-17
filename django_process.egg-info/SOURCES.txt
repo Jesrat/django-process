@@ -13,4 +13,8 @@ process/tests.py
 process/views.py
 process/management/__init__.py
 process/management/commands/__init__.py
+process/management/commands/_actions.py
+process/management/commands/_task.py
 process/management/commands/run_jobs.py
+process/templatetags/__init__.py
+process/templatetags/process_diagram.py

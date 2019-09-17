@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="django-process",
-    version="3.1",
+    version="3.3",
     author="Josue Gomez",
     author_email="jgomez@binkfe.com",
     description="A package for create process and tasks on django",
@@ -16,6 +16,7 @@ setuptools.setup(
         'process',
         'process.management',
         'process.management.commands',
+        'process.templatetags'
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
