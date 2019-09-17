@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: django-process
-Version: 2.2
+Version: 3.1
 Summary: A package for create process and tasks on django
 Home-page: https://git.binkfe.com/jesrat/django-process
 Author: Josue Gomez

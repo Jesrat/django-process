@@ -132,7 +132,7 @@ class Job(models.Model):
     A Job is an instance of a Process that has been executed
     """
     initialized = 'initialized'
-    finished = 'finished '
+    finished = 'finished'
     cancelled = 'cancelled'
     error = 'error'
     unfinished = [initialized, error]
