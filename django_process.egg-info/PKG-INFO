@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: django-process
-Version: 4.0.0
+Version: 4.0.1
 Summary: An app for create process workflows and schedule tasks on django
 Home-page: https://github.com/Jesrat/django-process
 Author: Josue Gomez
@@ -61,8 +61,11 @@ Description:
         </html>
         ```
         this will return an output like this:
-        <img src="https://raw.githubusercontent.com/Jesrat/django-process/master/ext/workflow.jpg" align="center" />
-        
+        <span align="center">
+        <pre>
+        <a href="https://github.com/Jesrat/django-process"><img src="https://raw.githubusercontent.com/Jesrat/django-process/master/ext/workflow.jpg" align="center" /></a>
+        </pre>
+        </span>
         
         ## placing a task in an workflow diagram
         Task objects have two attributes: level & offset you can place a task in a workflow diagram using those attributes
