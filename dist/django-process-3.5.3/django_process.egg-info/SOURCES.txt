@@ -10,7 +10,6 @@ django_process.egg-info/top_level.txt
 process/__init__.py
 process/admin.py
 process/apps.py
-process/env.py
 process/models.py
 process/tests.py
 process/views.py

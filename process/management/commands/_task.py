@@ -1,13 +1,12 @@
 import os
+import sys
 import logging
+import subprocess
 from datetime import datetime
 from threading import Thread
-from django.conf import settings
 
 from process.models import Job, JobTask
 logger = logging.getLogger('django-process')
-
-tasks_logs_dir = getattr(settings, 'DJ_PROCESS_LOGS_DIR', None)
 
 
 class TaskThreaded(Thread):
@@ -16,38 +15,34 @@ class TaskThreaded(Thread):
         self.obj = obj
 
     def run(self):
-        # mark task instance as initialized
-        self.obj.dt_start = datetime.now()
-        self.obj.status = JobTask.initialized
-        self.obj.save()
-
         try:
-            response = {}
-            if tasks_logs_dir and self.obj.task.log_file:
-                file = self.obj.task.log_file \
-                    if self.obj.task.log_file.endswith('.log') else f'{self.obj.task.log_file}.log'
+            # mark task instance as initialized
+            self.obj.dt_start = datetime.now()
+            self.obj.status = JobTask.initialized
+            self.obj.save()
 
-                logging.basicConfig(filename=file, filemode='a',
-                                    format='%(asctime)s %(message)s',
-                                    level=logging.DEBUG)
-                response['logger'] = logging
+            try:
+                cmd = [sys.executable, self.obj.task.code.path]
+                logger.debug(f'command to execute {cmd}')
 
-            exec(self.obj.task.code, globals(), response)
+                p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                stdout, stderr = p.communicate()
+                # return code must be 0 for success
+                self.obj.observations = stdout.decode('utf-8')
+                if p.returncode:
+                    raise Exception(stderr.decode('utf-8'))
 
-            # if no observations returned always save a string in attribute
-            self.obj.observations = response.get('observations', '')
-            if response.get('error'):
-                raise Exception(' task response with error ')
+                self.obj.status = JobTask.finished
 
-            self.obj.status = JobTask.finished
+            except Exception as e:
+                # if error send to logger and also mark task and it's job as error
+                self.obj.observations += f"\nexception when running task {e}"
+                self.obj.status = JobTask.error
+                self.obj.job.status = Job.error
+                logger.error(f'task {self.obj} finished with error {self.obj.observations}')
+                self.obj.job.save()
 
+            self.obj.dt_end = datetime.now()
+            self.obj.save()
         except Exception as e:
-            # if error send to logger and also mark task and it's job as error
-            self.obj.observations += f' exception when running task {e}'
-            self.obj.status = JobTask.error
-            self.obj.job.status = Job.error
-            logger.error(f'task {self.obj} finished with error {self.obj.observations}')
-            self.obj.job.save()
-
-        self.obj.dt_end = datetime.now()
-        self.obj.save()
+            logger.exception(f'error {e} when processing task {self.obj}')

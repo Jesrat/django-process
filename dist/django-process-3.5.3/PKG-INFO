@@ -1,15 +1,15 @@
 Metadata-Version: 2.1
 Name: django-process
-Version: 4.0.0
-Summary: An app for create process workflows and schedule tasks on django
-Home-page: https://github.com/Jesrat/django-process
+Version: 3.5.3
+Summary: A package for create process and tasks on django
+Home-page: https://git.binkfe.com/jesrat/django-process
 Author: Josue Gomez
-Author-email: jgomez@jesrat.com
+Author-email: jgomez@binkfe.com
 License: UNKNOWN
 Description: UNKNOWN
 Platform: UNKNOWN
 Classifier: Programming Language :: Python :: 3
-Classifier: License :: OSI Approved :: Apache Software License
+Classifier: License :: OSI Approved :: MIT License
 Classifier: Framework :: Django
 Classifier: Operating System :: OS Independent
 Description-Content-Type: text/markdown

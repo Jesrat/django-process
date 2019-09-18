@@ -1,6 +1,6 @@
 from django.db import models
 from datetime import datetime
-from django.core.validators import RegexValidator, FileExtensionValidator
+from django.core.validators import RegexValidator
 from django.utils.translation import gettext_lazy as _
 
 
@@ -11,13 +11,13 @@ class Process(models.Model):
     name = models.CharField(_("name"), max_length=20, unique=True)
     description = models.CharField(_("description"), max_length=200, unique=True)
     is_active = models.BooleanField(_("active"), default=True)
-    run_if_err = models.BooleanField(_("run again if previously execution status is error"), default=False)
+    run_if_err = models.BooleanField(_("run again if previously result is error"), default=False)
     run_overlap = models.BooleanField(_("run if previous still is executing"), default=False)
     minute = models.CharField(_("minute"), max_length=50)
     hour = models.CharField(_("hour"), max_length=50)
-    day_of_month = models.CharField(_("day of month"), max_length=50)
+    day_of_month = models.CharField(_("day_of_month"), max_length=50)
     month = models.CharField(_("month"), max_length=50)
-    day_of_week = models.CharField(_("day of week"), max_length=50)
+    day_of_week = models.CharField(_("day_of_week"), max_length=50)
     objects = models.Manager()
 
     def __str__(self):
@@ -83,17 +83,14 @@ class Task(models.Model):
         r'^-?[0-9]{0,3}%$',
         _('wrong value for offset it mus be positive 1% or negative -1% max 3 digits')
     )
-    process = models.ForeignKey(Process, on_delete=models.CASCADE, verbose_name=_("process"), related_name='tasks')
+    process = models.ForeignKey(Process, on_delete=models.CASCADE, verbose_name=_("tasks"), related_name='tasks')
     name = models.CharField(_("name"), max_length=20, unique=True)
     description = models.CharField(_("description"), max_length=200, unique=True)
     is_active = models.BooleanField(_("active"), default=True)
     level = models.PositiveIntegerField(_("diagram level"), default=0)
     offset = models.CharField(_("diagram offset"), max_length=5, default='0%', validators=[offset_validator])
-    code = models.FileField(
-        _("code file"),
-        upload_to='dj_process_tasks/',
-        validators=[FileExtensionValidator(allowed_extensions=['py'])]
-    )
+    log_file = models.CharField(_("log file"), max_length=20)
+    code = models.TextField(_("code"))
     objects = models.Manager()
 
     def __str__(self):
@@ -114,8 +111,8 @@ class TaskDependence(models.Model):
     """
     Identifies the relationship between tasks
     """
-    parent = models.ForeignKey(Task, on_delete=models.CASCADE, verbose_name=_("parent task"), related_name='childs')
     task = models.ForeignKey(Task, on_delete=models.CASCADE, verbose_name=_("child task"), related_name='parents')
+    parent = models.ForeignKey(Task, on_delete=models.CASCADE, verbose_name=_("parent task"), related_name='childs')
     objects = models.Manager()
 
     def __str__(self):
@@ -123,8 +120,8 @@ class TaskDependence(models.Model):
 
     class Meta:
         db_table = 'pr_task_dependencies'
-        verbose_name = _('task dependence')
-        verbose_name_plural = _('task dependencies')
+        verbose_name = _('task_dependence')
+        verbose_name_plural = _('task_dependencies')
         ordering = ['-id']
         permissions = (
             ("view_tasks_dependencies", "Can view tasks dependencies"),
@@ -149,7 +146,7 @@ class Job(models.Model):
     process = models.ForeignKey(
         Process,
         on_delete=models.CASCADE,
-        verbose_name=_("process"),
+        verbose_name=_("process logs"),
         related_name='jobs'
     )
     status = models.CharField(_("status"), max_length=20, choices=status_choices, default=initialized)
@@ -227,20 +224,20 @@ class JobTask(models.Model):
     job = models.ForeignKey(
         Job,
         on_delete=models.CASCADE,
-        verbose_name=_("job"),
+        verbose_name=_("job tasks logs"),
         related_name='tasks'
     )
     task = models.ForeignKey(
         Task,
         on_delete=models.CASCADE,
-        verbose_name=_("task"),
+        verbose_name=_("tasks logs"),
         related_name='logs'
     )
     status = models.CharField(_("status"), max_length=20, choices=status_choices, default=awaiting)
     dt_created = models.DateTimeField(_("created date"), blank=True, null=True, auto_now_add=True)
     dt_start = models.DateTimeField(_("start date"), blank=True, null=True)
     dt_end = models.DateTimeField(_("end date"), blank=True, null=True)
-    observations = models.TextField(_("observations"), blank=True, null=True)
+    observations = models.CharField(_("observations"), max_length=500, blank=True, null=True)
     objects = models.Manager()
 
     def __str__(self):
@@ -248,8 +245,8 @@ class JobTask(models.Model):
 
     class Meta:
         db_table = 'pr_job_tasks'
-        verbose_name = _('task instance')
-        verbose_name_plural = _('task instances')
+        verbose_name = _('task')
+        verbose_name_plural = _('tasks')
         ordering = ['-id']
         permissions = (
             ("view_job_tasks", "Can view tasks executions"),

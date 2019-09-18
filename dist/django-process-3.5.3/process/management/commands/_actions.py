@@ -1,28 +1,11 @@
-import os
-import sys
-import json
 import logging
-import importlib
 from datetime import datetime
-from django.conf import settings
 from django.db.models import ObjectDoesNotExist
 
 logger = logging.getLogger('django-process')
 
 from process.models import Process, Job, JobTask
 from ._task import TaskThreaded
-
-
-def configure_env():
-    module = importlib.util.find_spec('process')
-    mod_location = os.path.dirname(module.origin)
-    env_file = os.path.join(mod_location, 'env_conf.json')
-    environment = {
-        'project_path': settings.BASE_DIR,
-        'project_settings': os.environ.get('DJANGO_SETTINGS_MODULE')
-    }
-    with open(env_file, 'w') as f:
-        json.dump(environment, f)
 
 
 def run_jobs():

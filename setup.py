@@ -1,27 +1,25 @@
-import setuptools
+import process as pkg
+from setuptools import setup, find_packages
 
 with open("README.md", "r") as fh:
-    long_description = fh.read()
+    readme = fh.read()
 
-setuptools.setup(
-    name="django-process",
-    version="3.3",
-    author="Josue Gomez",
-    author_email="jgomez@binkfe.com",
-    description="A package for create process and tasks on django",
-    long_description=long_description,
+setup(
+    name=pkg.__title__,
+    version=pkg.__version__,
+    author=pkg.__author__,
+    author_email=pkg.__author_email__,
+    description=pkg.__description__,
+    long_description=readme,
     long_description_content_type="text/markdown",
-    url="https://git.binkfe.com/jesrat/django-process",
-    packages=[
-        'process',
-        'process.management',
-        'process.management.commands',
-        'process.templatetags'
-    ],
+    url=pkg.__url__,
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
+        'License :: OSI Approved :: Apache Software License',
         'Framework :: Django',
         "Operating System :: OS Independent",
     ],
+    packages=find_packages(),
+    include_package_data=True,
+    zip_safe=False,
 )
