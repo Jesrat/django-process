@@ -55,7 +55,7 @@ in your html code you can render a Process as an image workflow
 this will return an output like this:
 <span align="center">
 <pre>
-<img src="https://raw.githubusercontent.com/Jesrat/django-process/master/ext/workflow.jpg" align="center" />
+<a href="https://github.com/Jesrat/django-process"><img src="https://raw.githubusercontent.com/Jesrat/django-process/master/ext/workflow.jpg" align="center" /></a>
 </pre>
 </span>
 
