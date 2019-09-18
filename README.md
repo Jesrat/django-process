@@ -53,7 +53,7 @@ in your html code you can render a Process as an image workflow
 </html>
 ```
 this will return an output like this:
-{ img not loaded yet ! }
+<img src="https://raw.githubusercontent.com/Jesrat/django-process/master/ext/workflow.jpg" align="center" />
 
 
 ## placing a task in an workflow diagram
