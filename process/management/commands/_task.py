@@ -22,7 +22,8 @@ class TaskThreaded(Thread):
             self.obj.save()
 
             try:
-                cmd = [sys.executable, self.obj.task.code.path, self.obj.task.arguments.split()]
+                cmd = [sys.executable, self.obj.task.code.path]
+                cmd += self.obj.task.arguments.split()
                 logger.debug(f'command to execute {cmd}')
 
                 p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
