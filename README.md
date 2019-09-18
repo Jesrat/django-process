@@ -84,6 +84,19 @@ you can reopen a task that has been executed already:
 ```
 this will reopen the job task for execution again and it will set status awaiting for the childs in CASCADE
 
+## access some app.models in task
+If you want to use django functions or access models and their methods in a task-script
+
+you need first import process.env example:
+```pycon
+import process.env
+from yourapp.models import CustomModel
+
+objects = CustomModel.objects.all()
+for obj in objects:
+    print(obj)
+```
+if you do not import process.env you will get an error trying to access django
 
 ## this short tutorial does not covers all the power for the app. I will be adding more examples
 ## if you got doubts or questions don't hesitate send me a mail or create an issue im always online   
