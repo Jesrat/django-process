@@ -89,6 +89,7 @@ class Task(models.Model):
     is_active = models.BooleanField(_("active"), default=True)
     level = models.PositiveIntegerField(_("diagram level"), default=0)
     offset = models.CharField(_("diagram offset"), max_length=5, default='0%', validators=[offset_validator])
+    arguments = models.CharField(_("arguments"), max_length=100, blank=True, null=True)
     code = models.FileField(
         _("code file"),
         upload_to='dj_process_tasks/',
