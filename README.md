@@ -53,8 +53,11 @@ in your html code you can render a Process as an image workflow
 </html>
 ```
 this will return an output like this:
+<span align="center">
+<pre>
 <img src="https://raw.githubusercontent.com/Jesrat/django-process/master/ext/workflow.jpg" align="center" />
-
+</pre>
+</span>
 
 ## placing a task in an workflow diagram
 Task objects have two attributes: level & offset you can place a task in a workflow diagram using those attributes
