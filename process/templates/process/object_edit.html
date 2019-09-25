@@ -1,0 +1,10 @@
+{% load crispy_forms_tags %}
+<form action="" method="post">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <div class="form-group">
+        <div class="d-flex justify-content-center">
+            <input type="submit" value="{{ operation }}" class="btn btn-outline-info"/>
+        </div>
+    </div>
+</form>

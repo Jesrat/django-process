@@ -1,0 +1,2 @@
+class ProcessException(Exception):
+    pass

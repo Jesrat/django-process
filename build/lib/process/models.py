@@ -1,14 +1,7 @@
-import re
-import os
-import logging
+from django.db import models
 from datetime import datetime
-from process.exceptions import ProcessException
-from django.core.exceptions import ValidationError
-from django.utils.translation import gettext_lazy as _
-from django.db import models, transaction, DatabaseError
 from django.core.validators import RegexValidator, FileExtensionValidator
-
-logger = logging.getLogger('django-process')
+from django.utils.translation import gettext_lazy as _
 
 
 class Process(models.Model):
@@ -40,94 +33,38 @@ class Process(models.Model):
             ("manage_processes", "Can manage processes"),
         )
 
-    def clean(self):
-        super().clean()
-        _ = self._expanded(self.minute, 'minute')
-        _ = self._expanded(self.hour, 'hour')
-        _ = self._expanded(self.day_of_month, 'day_of_month')
-        _ = self._expanded(self.month, 'month')
-        _ = self._expanded(self.day_of_week, 'day_of_week')
-
-    def save(self, *args, **kwargs):
-        self.full_clean()
-        return super().save(*args, **kwargs)
-
     @staticmethod
-    def _expanded(var, type_val):
+    def _expanded(var):
         """
         gets an crontab like string and expands all items example
         '1,2,3,7,4-9' will be expanded to '1,2,3,4,5,6,7,8,9'
         :param var:
         :return: string of unique items expanded
         """
-        def item_validator(i):
-            val_range = [0, 0]
-            if type_val == 'minute':
-                val_range = [0, 59]
-            if type_val == 'hour':
-                val_range = [0, 23]
-            elif type_val == 'day_of_month':
-                val_range = [1, 31]
-            elif type_val == 'month':
-                val_range = [1, 12]
-            elif type_val == 'day_of_week':
-                val_range = [0, 6]
-
-            if not val_range[0] <= int(i) <= val_range[1]:
-                raise ValueError
-            return int(i)
-            
-        # if content it is a star it is ok means all
         if var == '*':
             return []
-
-        n3 = []
-        ranges = []
-        # separate ranged values and not ranged values to be validated
-        for i in var.split(','):
-            if i.find('-') > -1 and len(re.findall('-', i)) == 1:
-                ranges.append(i.split('-'))
-            elif i.find('-') == -1:
-                try:
-                    n3.append(item_validator(i))
-                except ValueError:
-                    raise ValidationError(_(f'{i} is not a valid value'))
-            else:
-                raise ValidationError(_(f'{i} is not a valid range value'))
-
-        # the set now contents individual values
-        n3 = set(n3)
-
-        # review range values must have only one hypen second value must be greater than first
-        for i in ranges:
-            try:
-                if item_validator(i[0]) >= item_validator(i[1]):
-                    raise ValidationError(_(f'{i[1]} must be greater than {i[0]}'))
-            except ValueError:
-                raise ValidationError(_(f"{'-'.join(i)} is not a valid range value"))
-
+        n = var.split(',')
+        n2 = [i.split('-') for i in n if i.find('-') > -1]
+        n3 = set([int(i) for i in n if i.find('-') == -1])
+        for i in n2:
             for x in range(int(i[0]), int(i[1]) + 1):
                 n3.add(x)
-        
-        # the set is complete
         return n3
 
     def _minute(self):
-        return any([self.minute == '*', self.current_time.minute in self._expanded(self.minute, 'minute')])
+        return any([self.minute == '*', self.current_time.minute in self._expanded(self.minute)])
 
     def _hour(self):
-        return any([self.hour == '*', self.current_time.hour in self._expanded(self.hour, 'hour')])
+        return any([self.hour == '*', self.current_time.hour in self._expanded(self.hour)])
 
     def _day_of_month(self):
-        return any([self.day_of_month == '*',
-                    self.current_time.day in self._expanded(self.day_of_month, 'day_of_month')])
+        return any([self.day_of_month == '*', self.current_time.day in self._expanded(self.day_of_month)])
 
     def _month(self):
-        return any([self.month == '*', self.current_time.month in self._expanded(self.month, 'month')])
+        return any([self.month == '*', self.current_time.month in self._expanded(self.month)])
 
     def _day_of_week(self):
-        return any([self.day_of_week == '*',
-                    self.current_time.isoweekday() in self._expanded(self.day_of_week, 'day_of_week')])
+        return any([self.day_of_week == '*', self.current_time.weekday() in self._expanded(self.day_of_week)])
 
     def must_run(self):
         """
@@ -152,12 +89,11 @@ class Task(models.Model):
     is_active = models.BooleanField(_("active"), default=True)
     level = models.PositiveIntegerField(_("diagram level"), default=0)
     offset = models.CharField(_("diagram offset"), max_length=5, default='0%', validators=[offset_validator])
-    interpreter = models.CharField(_("interpreter"), max_length=50, blank=True, null=True)
     arguments = models.CharField(_("arguments"), max_length=100, blank=True, null=True)
     code = models.FileField(
         _("code file"),
         upload_to='dj_process_tasks/',
-        validators=[FileExtensionValidator(allowed_extensions=['py', 'sh', 'pl'])]
+        validators=[FileExtensionValidator(allowed_extensions=['py'])]
     )
     objects = models.Manager()
 
@@ -173,11 +109,6 @@ class Task(models.Model):
             ("view_tasks", "Can view tasks"),
             ("manage_tasks", "Can manage tasks"),
         )
-
-    @property
-    def file_extension(self):
-        name, extension = os.path.splitext(self.code.name)
-        return extension.lstrip('.')
 
 
 class TaskDependence(models.Model):
@@ -195,26 +126,10 @@ class TaskDependence(models.Model):
         db_table = 'pr_task_dependencies'
         verbose_name = _('task dependence')
         verbose_name_plural = _('task dependencies')
-        unique_together = ('parent', 'task')
         ordering = ['-id']
         permissions = (
             ("view_tasks_dependencies", "Can view tasks dependencies"),
         )
-
-    def clean(self):
-        super().clean()
-
-        def parent_recursive(task, parent):
-            if parent == task:
-                raise ValidationError(_('cyclic relation detected'))
-            for p in parent.parents.all():
-                parent_recursive(task, p.parent)
-
-        parent_recursive(self.task, self.parent)
-
-    def save(self, *args, **kwargs):
-        self.full_clean()
-        return super().save(*args, **kwargs)
 
 
 class Job(models.Model):
@@ -225,7 +140,6 @@ class Job(models.Model):
     finished = 'finished'
     cancelled = 'cancelled'
     error = 'error'
-    cancelable = [initialized, error]
     unfinished = [initialized, error]
     status_choices = (
         (initialized, 'initialized'),
@@ -239,7 +153,7 @@ class Job(models.Model):
         verbose_name=_("process"),
         related_name='jobs'
     )
-    status = models.CharField(_("status"), db_index=True, max_length=20, choices=status_choices, default=initialized)
+    status = models.CharField(_("status"), max_length=20, choices=status_choices, default=initialized)
     dt_start = models.DateTimeField(_("start date"), blank=True, null=True, auto_now_add=True)
     dt_end = models.DateTimeField(_("end date"), blank=True, null=True)
     observations = models.CharField(_("observations"), max_length=500, blank=True, null=True)
@@ -256,7 +170,6 @@ class Job(models.Model):
         permissions = (
             ("view_jobs", "Can view job executions"),
             ("run_jobs", "Can run job"),
-            ("cancel_jobs", "Can cancel job"),
         )
 
     @classmethod
@@ -274,17 +187,6 @@ class Job(models.Model):
             ret_tasks = [JobTask.create(job, t) for t in tasks]
         return job, ret_tasks
 
-    def cancel(self):
-        try:
-            if self.status not in Job.cancelable:
-                raise ProcessException('job status is not initialized')
-            with transaction.atomic():
-                self.status = Job.cancelled
-                self.tasks.filter(status__in=JobTask.can_cancel).update(status=JobTask.cancelled)
-                self.save()
-        except DatabaseError as e:
-            raise ProcessException(e)
-
 
 class JobTask(models.Model):
     """
@@ -299,16 +201,20 @@ class JobTask(models.Model):
     forced = 'forced'
     error = 'error'
 
-    can_force = [error]
-    can_retry = [error]
-    can_reopen = [finished, cancelled, forced]
-    can_cancel = [awaiting, error]
-
     run_status = [awaiting, reopened, retry]
     ok_status = [finished, cancelled, forced]
 
-    trunc_end_dt = [initialized, awaiting, reopened, retry]
-    set_end_dt = [finished, cancelled, forced, error]
+    status_color = {
+        'default': '#41c0a4',
+        initialized: '#419dc0',
+        awaiting: 'gray',
+        reopened: '#41c0a4',
+        retry: '#41c0a4',
+        finished: '#abd734',
+        cancelled: '#d76034',
+        forced: '#d734ab',
+        error: 'red',
+    }
 
     status_choices = (
         (awaiting, 'awaiting'),
@@ -319,14 +225,6 @@ class JobTask(models.Model):
         (forced, 'forced'),
         (retry, 'retry'),
         (error, 'error'),
-    )
-
-    # action, requirements, status
-    management = (
-        ('Force', can_force, forced),
-        ('Retry', can_retry, retry),
-        ('Reopen', can_reopen, reopened),
-        ('Cancel', can_cancel, cancelled),
     )
     job = models.ForeignKey(
         Job,
@@ -340,7 +238,7 @@ class JobTask(models.Model):
         verbose_name=_("task"),
         related_name='logs'
     )
-    status = models.CharField(_("status"), db_index=True, max_length=20, choices=status_choices, default=awaiting)
+    status = models.CharField(_("status"), max_length=20, choices=status_choices, default=awaiting)
     dt_created = models.DateTimeField(_("created date"), blank=True, null=True, auto_now_add=True)
     dt_start = models.DateTimeField(_("start date"), blank=True, null=True)
     dt_end = models.DateTimeField(_("end date"), blank=True, null=True)
@@ -361,22 +259,14 @@ class JobTask(models.Model):
         )
 
     @property
-    def title(self):
-        return f'{self.status}<br>start: {self.dt_start}<br> end: {self.dt_end}'
-
-    @property
     def info(self):
         if self.status == JobTask.error:
-            return f'{self.observations}'
+            return f'{self.dt_start} - </br>{self.observations}'
         elif self.status == JobTask.awaiting:
-            parents = ', '.join([p.task.name for p in self.get_parents() if p.status != 'finished'])
-            return f'waiting for parent(s) {parents}'
+            parents = ', '.join([p.task.name for p in self.get_parents()])
+            return f'waiting for parents {parents}'
         else:
-            return self.task.description
-
-    @property
-    def ready_to_run(self):
-        return all([p.status in JobTask.ok_status for p in self.get_parents()])
+            return f'{self.dt_start} - {self.dt_end}'
 
     @classmethod
     def create(cls, job, task):
@@ -396,42 +286,12 @@ class JobTask(models.Model):
             task__in=TaskDependence.objects.filter(task=self.task).values('parent')
         )
 
-    def reopen(self, main=None):
-        if main and self.status not in JobTask.can_reopen:
-            raise ProcessException(_(f"can't reopen current status not valid"))
+    @property
+    def ready_to_run(self):
+        return all([p.status in JobTask.ok_status for p in self.get_parents()])
 
+    def reopen(self, main=None):
         for child in self.get_childs():
             child.reopen()
-
-        self.set_status(JobTask.reopened if main else JobTask.awaiting)
-
-    def set_status(self, status):
-        # check available status
-        if status not in [i[0] for i in JobTask.status_choices]:
-            raise ProcessException(_(f'status requested {status} not in status choices'))
-        
-        # check if new status is available for current status
-        if status == JobTask.cancelled and self.status not in JobTask.can_cancel:
-            raise ProcessException(_(f"can't cancel current status not valid"))
-        elif status == JobTask.retry and self.status not in JobTask.can_retry:
-            raise ProcessException(_(f"can't retry current status not valid"))
-        elif status == JobTask.forced and self.status not in JobTask.can_force:
-            raise ProcessException(_(f"can't retry current status not valid"))
-
-        # if it will run then trunc observations
-        if status in JobTask.run_status:
-            self.observations = ''
-
-        # DT_START
-        if status == JobTask.initialized:
-            self.dt_start = datetime.now()
-            self.observations = ''
-
-        # DT_END trunc or set
-        if status in JobTask.trunc_end_dt:
-            self.dt_end = None
-        elif status in JobTask.set_end_dt:
-            self.dt_end = datetime.now()
-
-        self.status = status
+        self.status = JobTask.reopened if main else JobTask.awaiting
         self.save()

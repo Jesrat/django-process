@@ -16,16 +16,14 @@ class TaskThreaded(Thread):
 
     def run(self):
         try:
+            # mark task instance as initialized
+            self.obj.dt_start = datetime.now()
+            self.obj.status = JobTask.initialized
+            self.obj.save()
+
             try:
-                if not self.obj.task.interpreter:
-                    cmd = [sys.executable]
-                else:
-                    cmd = self.obj.task.interpreter.split()
-
-                cmd.append(self.obj.task.code.path)
-
+                cmd = [sys.executable, self.obj.task.code.path]
                 cmd += self.obj.task.arguments.split()
-
                 logger.debug(f'command to execute {cmd}')
 
                 p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -35,12 +33,12 @@ class TaskThreaded(Thread):
                 if p.returncode:
                     raise Exception(stderr.decode('utf-8'))
 
-                self.obj.set_status(JobTask.finished)
+                self.obj.status = JobTask.finished
 
             except Exception as e:
                 # if error send to logger and also mark task and it's job as error
                 self.obj.observations += f"\nexception when running task {e}"
-                self.obj.set_status(JobTask.error)
+                self.obj.status = JobTask.error
                 self.obj.job.status = Job.error
                 logger.error(f'task {self.obj} finished with error {self.obj.observations}')
                 self.obj.job.save()

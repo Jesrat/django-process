@@ -1,7 +1,7 @@
 from django import template
 from django.utils.safestring import mark_safe
+from django.conf import settings
 
-from process.conf import get_conf
 from ..models import Process, Job, JobTask
 
 register = template.Library()
@@ -11,7 +11,7 @@ html = """
 <script>
 Highcharts.chart('container-process-{id}', {
   chart: {
-    height: """ + get_conf('diagram__chart_height') + """,
+    height: 600,
     inverted: true
   },
   title: {
@@ -24,9 +24,9 @@ Highcharts.chart('container-process-{id}', {
     keys: ['from', 'to'],
     data: {data},
     levels: [],
-    linkRadius: """ + get_conf('diagram__link_radius') + """,
-    linkLineWidth: """ + get_conf('diagram__link_line_width') + """,
-    linkColor: '""" + get_conf('diagram__link_color') + """',
+    linkRadius: 55,
+    linkLineWidth: 4,
+    linkColor: 'black',
     nodes: {nodes},
     showCheckbox: true,
     colorByPoint: false,
@@ -35,8 +35,8 @@ Highcharts.chart('container-process-{id}', {
       color: 'white',
     },
     borderColor: 'white',
-    nodeWidth: """ + get_conf('diagram__node_width') + """,
-    nodePadding: """ + get_conf('diagram__node_padding') + """
+    nodeWidth: 75,
+    nodePadding: 0
   }],
   tooltip: {
     outside: true,
@@ -54,19 +54,26 @@ Highcharts.chart('container-process-{id}', {
 </script>
 """
 
+task_colors = getattr(settings, 'DJ_PROCESS_TASK_COLOR', JobTask.status_color)
+
 
 def get_task_as_node(t):
+    def get_color(key):
+        try:
+            return task_colors[key]
+        except KeyError:
+            return JobTask.status_color[key]
+
     job_task = True if isinstance(t, JobTask) else False
     node_task = t.task if job_task else t
-    color = get_conf(f'diagram__tasks_color__{t.status}') if job_task else get_conf('diagram__tasks_color__default')
     return {
         'id': node_task.name,
         'name': node_task.name,
-        'title': t.title if job_task else node_task.description,
+        'title': t.info if job_task else node_task.description,
         'level': node_task.level,
         'offset': node_task.offset,
         'info': t.info if job_task else node_task.description,
-        'color': color,
+        'color': get_color(t.status) if job_task else get_color('default'),
     }
 
 

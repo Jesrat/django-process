@@ -1,0 +1,226 @@
+{% load static %}
+{% load dj_process_templatetags %}
+{% if title == 'Processes' %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Process</th>
+                <th scope="col">Description</th>
+                <th scope="col">Active</th>
+                <th scope="col">Frequency</th>
+                <th scope="col">Run If Err</th>
+                <th scope="col">Overlap</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for process in object_list %}
+            <tr>
+                <td>
+                    <a href="{% url 'process-processes-update' pk=process.id %}">
+                        {{ process.name }}
+                    </a>
+                </td>
+                <td>{{ process.description }}</td>
+                <td>{{ process.is_active }}</td>
+                <td>{{ process.minute }}|{{ process.hour }}|{{ process.day_of_month }}|{{ process.month }}|{{ process.day_of_week }}</td>
+                <td>{{ process.run_if_err }}</td>
+                <td>{{ process.run_overlap }}</td>
+                <td style="width: 185px;">
+                    <div class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="object-actions" role="button"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Actions     </a>
+                        <div class="dropdown-menu" aria-labelledby="object-actions">
+                            <a href="{% url 'process-tasks' %}?process__id={{ process.id }}" class="dropdown-item">
+                                <img alt="tasks list" src="{% static 'process/images/list-icon.png' %}" style="width: 30px;">
+                                Tasks List
+                            </a>
+                            <a href="{% url 'process-process-diagram' pk=process.id %}" class="dropdown-item">
+                                <img alt="job diagram" src="{% static 'process/images/flow-chart.png' %}" style="width: 30px;">
+                                View as Flow
+                            </a>
+                            <div>
+                                <form method="POST" class="m-0">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="process" value="{{ process.id }}">
+                                    <button type="submit" class="dropdown-item btn">
+                                        <img alt="run process" src="{% static 'process/images/run.png' %}" style="width: 30px;">
+                                        Run on Demand
+                                    </button>
+                                </form>
+                            </div>
+                            <a href="{% url 'process-jobs' %}?process__id={{ process.id }}" class="dropdown-item">
+                                <img alt="history" src="{% static 'process/images/history.png' %}" style="width: 30px;">
+                                Executions
+                            </a>
+                            <a href="{% url 'process-processes-delete' pk=process.id %}" class="dropdown-item">
+                                <img alt="delete" src="{% static 'process/images/delete.png' %}" style="width: 30px;">
+                                Drop
+                            </a>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% elif title == 'Tasks' %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Process</th>
+                <th scope="col">Name</th>
+                <th scope="col">Description</th>
+                <th scope="col">Active</th>
+                <th scope="col">Arguments</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for task in object_list %}
+            <tr>
+                <td>
+                    <a href="{% url 'process-processes' %}?id={{ task.process.id }}">
+                        {{ task.process.name }}
+                    </a>
+                </td>
+                <td>
+                    <a href="{% url 'process-tasks-update' pk=task.id %}">
+                        {{ task.name }}
+                    </a>
+                </td>
+                <td>{{ task.description }}</td>
+                <td>{{ task.is_active }}</td>
+                <td>{{ task.arguments }}</td>
+                <td>
+                    <a href="{{ task.code.url }}" class="btn btn-default btn-sm">
+                        <img alt="file" src="{% static task.file_extension|get_image %}" style="width: 30px;">
+                    </a>
+                    <a href="{% url 'process-job-tasks' %}?task__id={{ task.id }}" class="btn btn-default btn-sm">
+                        <img alt="history" src="{% static 'process/images/history.png' %}" style="width: 30px;">
+                    </a>
+                    <a href="{% url 'process-tasks-delete' pk=task.id %}" class="btn btn-default btn-sm">
+                        <img alt="delete" src="{% static 'process/images/delete.png' %}" style="width: 30px;">
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% elif title == 'Jobs' %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Process</th>
+                <th scope="col">Status</th>
+                <th scope="col">Start Date</th>
+                <th scope="col">End Date</th>
+                <th scope="col">Observations</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for job in object_list %}
+            <tr>
+                <td>
+                    <a href="{% url 'process-processes' %}?id={{ job.process.id }}">
+                        {{ job.process.name }}
+                    </a>
+                </td>
+                <td>{{ job.status }}</td>
+                <td>{{ job.dt_start|date:"d-M-Y H:i:s" }}</td>
+                <td>{{ job.dt_end|date:"d-M-Y H:i:s" }}</td>
+                <td>{{ job.observations }}</td>
+                <td style="width: 185px;">
+                    <div class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="object-job-actions" role="button"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Actions     </a>
+                        <div class="dropdown-menu" aria-labelledby="object-job-actions">
+                            <a href="{% url 'process-job-tasks' %}?job__id={{ job.id }}" class="dropdown-item">
+                                <img alt="tasks list" src="{% static 'process/images/list-icon.png' %}" style="width: 30px;">
+                                Tasks List
+                            </a>
+                            <a href="{% url 'process-job-diagram' pk=job.id %}" class="dropdown-item">
+                                <img alt="job diagram" src="{% static 'process/images/flow-chart.png' %}" style="width: 30px;">
+                                View as Flow
+                            </a>
+                            <div>
+                                <form method="POST" class="m-0">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="job" value="{{ job.id }}">
+                                    <button type="submit" class="dropdown-item btn">
+                                        <img alt="cancell job" src="{% static 'process/images/cancel.png' %}" style="width: 30px;">
+                                        Cancel
+                                    </button>
+                                </form>
+                            </div>
+                            <a href="{% url 'process-jobs-delete' pk=job.id %}" class="dropdown-item">
+                                <img alt="delete" src="{% static 'process/images/delete.png' %}" style="width: 30px;">
+                                Drop
+                            </a>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% elif title == 'JobTasks' %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Job</th>
+                <th scope="col">Name</th>
+                <th scope="col">Status</th>
+                <th scope="col">Start Date</th>
+                <th scope="col">End Date</th>
+                <th scope="col">Observations</th>
+                <td></td>
+            </tr>
+        </thead>
+        <tbody>
+        {% for task in object_list %}
+            <tr>
+                <td>
+                    <a href="{% url 'process-jobs' %}?id={{ task.job.id }}">
+                        {{ task.job.process.name }}
+                    </a>
+                </td>
+                <td>
+                    <a href="{% url 'process-tasks' %}?id={{ task.task.id }}">
+                        {{ task.task.name }}
+                    </a>
+                </td>
+                <td>{{ task.status }}</td>
+                <td>{{ task.dt_start|date:"d-M-Y H:i:s" }}</td>
+                <td>{{ task.dt_end|date:"d-M-Y H:i:s" }}</td>
+                <td>{{ task.observations }}</td>
+                <td style="width: 185px;">
+                    {{ task|available_actions }}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+{% if is_paginated %}
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?{% keep_filters page=1 %}"> << </a>
+                {% if page_obj.previous_page_number != 1 %}
+                    <a href="?{% keep_filters page=page_obj.previous_page_number %}"> prev </a>
+                {% endif %}
+            {% endif %}
+            <span class="current">
+                .. {{ page_obj.number }} of {{ paginator.num_pages }} ..
+            </span>
+            {% if page_obj.has_next %}
+                {% if page_obj.next_page_number != paginator.num_pages %}
+                  <a href="?{% keep_filters page=page_obj.next_page_number %}"> next </a>
+                {% endif %}
+                <a href="?{% keep_filters page=paginator.num_pages %}"> >> </a>
+            {% endif %}
+        </span>
+    </div>
+{% endif %}

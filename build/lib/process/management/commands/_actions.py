@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 import logging
 import importlib
@@ -51,6 +52,9 @@ def run_jobs():
                 return
 
             job, tasks = Job.create(pr)
+            for instance in tasks:
+                if instance.task.parents.count() == 0:
+                    TaskThreaded(instance).start()
 
 
 def run_awaiting_tasks():
@@ -59,8 +63,6 @@ def run_awaiting_tasks():
     """
     for task in JobTask.objects.filter(status__in=JobTask.run_status):
         if task.ready_to_run:
-            # mark task instance as initialized
-            task.set_status(JobTask.initialized)
             TaskThreaded(task).start()
 
 

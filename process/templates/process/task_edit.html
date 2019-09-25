@@ -1,0 +1,47 @@
+{% load crispy_forms_tags %}
+{% load dj_process_templatetags %}
+<form action="" method="post">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <hr>
+    <div id="parents-container">
+        <label class="col-form-label">Parent Tasks</label>
+        {{ parents|parents_as_badges }}
+        {{ new_parents|parents_as_badges }}
+    </div>
+    <select id="new-parent" class="form-control">
+        <option value="" selected>---------</option>
+        {% for option in parent_options %}
+            <option value="{{ option.id }}">{{ option.name }}</option>
+        {% endfor %}
+    </select>
+    <hr>
+    <div class="form-group">
+        <div class="d-flex justify-content-center">
+            <input type="submit" value="{{ operation }}" class="btn btn-outline-info"/>
+        </div>
+    </div>
+    <script>
+        var parent_badge = `<div class="btn btn-info d-flex justify-content-between mb-1" style="cursor: default;">
+            <input type="hidden" name="new-parents" value="{id}">
+            <span>{name}</span>
+            <span class="badge badge-light" style="cursor: pointer;" onclick="removeParentTask(this);">X</span>
+        </div>`
+        function removeParentTask(elem){
+            divTask = elem.parentNode;
+            var option = document.createElement("option");
+            option.text = divTask.getElementsByTagName('span')[0].innerText;
+            option.value = divTask.getElementsByTagName('input')[0].value;
+            var select = document.getElementById("new-parent");
+            select.appendChild(option);
+            divTask.parentNode.removeChild(divTask);
+        }
+        $("#new-parent").change(function(){
+            var badge_id = $(this).val();
+            var badge_name = $(this).find(":selected").text();
+            var new_badge = parent_badge.replace("{name}", badge_name).replace("{id}", badge_id);
+            $(this).find(":selected").remove();
+            $('#parents-container').append(new_badge);
+        });
+    </script>
+</form>

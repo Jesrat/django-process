@@ -11,19 +11,11 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         configure_env()
         try:
-            # This var will prevent many jobs started from the same process in the 0 second
-            jobs_start_unlocked = False
             while True:
-                time.sleep(0.1)
-
-                if datetime.now().second == 0 and jobs_start_unlocked:
-                    jobs_start_unlocked = False
+                time.sleep(1)
+                if datetime.now().second == 0:
                     run_jobs()
-                elif datetime.now().second != 0:
-                    jobs_start_unlocked = True
-
                 run_awaiting_tasks()
                 finish_jobs()
-
         except KeyboardInterrupt:
             pass
