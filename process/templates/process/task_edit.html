@@ -1,6 +1,6 @@
 {% load crispy_forms_tags %}
 {% load dj_process_templatetags %}
-<form action="" method="post">
+<form action="" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form|crispy }}
     <hr>

@@ -1,9 +1,12 @@
 import logging
 from django.contrib import messages
+from django.shortcuts import redirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.db import transaction, DatabaseError
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+
 from process.conf import get_conf
 from .generic_views import (
     ProcessGenericCreateView,
@@ -36,6 +39,21 @@ class TaskCreateView(ProcessGenericCreateView):
     success_url = get_conf('views__task__create__success_url')
     success_message = get_conf('views__task__create__success_message')
     permissions = get_conf('views__task__create__permissions')
+    redirect_to_edit = get_conf('views__task__create__redirect_to_edit')
+
+    def post(self, request, *args, **kwargs):
+        self.object = None
+        form_class = self.get_form_class()
+        form = form_class(request.POST, request.FILES)
+        if form.is_valid():
+            obj = form.save()
+            messages.success(request, self.success_message)
+            if not self.redirect_to_edit:
+                return HttpResponseRedirect(self.get_success_url())
+            else:
+                return redirect('process-tasks-update', pk=obj.id)
+
+        return self.render_to_response(self.get_context_data(form=form))
 
 
 class TaskUpdateView(ProcessGenericUpdateView):
@@ -108,10 +126,11 @@ class TaskUpdateView(ProcessGenericUpdateView):
                            [i['parent__id'] for i in new_parents]:
                         current.delete()
             messages.success(request, self.success_message)
+            return redirect('process-tasks-update', pk=self.object.id)
         except ValidationError as e:
             for msg in e.messages:
                 messages.error(request, _(f'{msg}'))
+            return response
         except Exception as e:
             messages.error(request, _(f'{e}'))
-        finally:
             return response

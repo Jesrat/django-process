@@ -87,6 +87,7 @@ default_settings = {
             'create': {
                 'success_url': 'process-tasks',
                 'success_message': _('task created successfully'),
+                'redirect_to_edit': True,
                 'permissions': ['process.view_tasks', 'process.add_tasks'],
             },
             'list': {

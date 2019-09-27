@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: django-process
-Version: 4.2.6
+Version: 4.2.7
 Summary: An app for create process workflows and schedule tasks on django
 Home-page: https://github.com/Jesrat/django-process
 Author: Josue Gomez
