@@ -1,7 +1,7 @@
 __title__ = 'django-process'
 __description__ = 'An app for create process workflows and schedule tasks on django'
 __url__ = 'https://github.com/Jesrat/django-process'
-__version__ = '4.2.7'
+__version__ = '4.2.8'
 __author__ = 'Josue Gomez'
 __author_email__ = 'jgomez@jesrat.com'
 __license__ = 'Apache 2.0'

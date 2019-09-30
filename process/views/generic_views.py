@@ -31,23 +31,17 @@ class ProcessGenericListView(ProcessSecurity, ListView):
     filters = {}
     filters_apply = {}
 
-    def get_queryset(self):
+    def get_filters_from_request(self):
         # convert set to python dict
         request_dict = {k: v for k, v in self.request.GET.lists()}
-
-        logger.debug(f"i'll search filters => {self.filters}")
-        logger.debug(f"in request => {request_dict}")
-
         # search filters in url if filters do exists change key add __in
-        self.filters_apply = {}
-        for k in self.filters:
-            self.filters[k] = request_dict.get(k)
-            if self.filters[k]:
-                self.filters_apply[f'{k}__in'] = self.filters[k]
+        return {f'{k}__in': request_dict.get(k) for k in self.filters if request_dict.get(k)}
 
-        logger.debug(f'filters to apply => {self.filters_apply}')
-        if self.filters:
-            return self.model.objects.filter(**self.filters_apply)
+    def get_queryset(self):
+        filters = self.get_filters_from_request()
+
+        if filters:
+            return self.model.objects.filter(**filters)
         else:
             return self.model.objects.all()
 
