@@ -421,6 +421,9 @@ class JobTask(models.Model):
         # if it will run then trunc observations
         if status in JobTask.run_status:
             self.observations = ''
+            if self.job.status in [Job.error, Job.finished]:
+                self.job.status = Job.initialized
+                self.job.save()
 
         # DT_START
         if status == JobTask.initialized:

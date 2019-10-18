@@ -130,7 +130,7 @@
                 <td>{{ job.status }}</td>
                 <td>{{ job.dt_start|date:"d-M-Y H:i:s" }}</td>
                 <td>{{ job.dt_end|date:"d-M-Y H:i:s" }}</td>
-                <td>{{ job.observations }}</td>
+                <td style="width: 30%;">{{ job.observations|textarea }}</td>
                 <td style="width: 185px;">
                     <div class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="object-job-actions" role="button"
@@ -144,20 +144,23 @@
                                 <img alt="job diagram" src="{% static 'process/images/flow-chart.png' %}" style="width: 30px;">
                                 View as Flow
                             </a>
-                            <div>
-                                <form method="POST" class="m-0">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="job" value="{{ job.id }}">
-                                    <button type="submit" class="dropdown-item btn">
-                                        <img alt="cancell job" src="{% static 'process/images/cancel.png' %}" style="width: 30px;">
-                                        Cancel
-                                    </button>
-                                </form>
-                            </div>
-                            <a href="{% url 'process-jobs-delete' pk=job.id %}" class="dropdown-item">
-                                <img alt="delete" src="{% static 'process/images/delete.png' %}" style="width: 30px;">
-                                Drop
-                            </a>
+                            {% if job.status != 'finished' %}
+                                <div>
+                                    <form method="POST" class="m-0">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="job" value="{{ job.id }}">
+                                        <button type="submit" class="dropdown-item btn">
+                                            <img alt="cancell job" src="{% static 'process/images/cancel.png' %}" style="width: 30px;">
+                                            Cancel
+                                        </button>
+                                    </form>
+                                </div>
+                            {% else %}
+                                <a href="{% url 'process-jobs-delete' pk=job.id %}" class="dropdown-item">
+                                    <img alt="delete" src="{% static 'process/images/delete.png' %}" style="width: 30px;">
+                                    Drop
+                                </a>
+                            {% endif %}
                         </div>
                     </div>
                 </td>
@@ -175,7 +178,7 @@
                 <th scope="col">Start Date</th>
                 <th scope="col">End Date</th>
                 <th scope="col">Observations</th>
-                <td></td>
+                <td scope="col"></td>
             </tr>
         </thead>
         <tbody>
@@ -194,7 +197,7 @@
                 <td>{{ task.status }}</td>
                 <td>{{ task.dt_start|date:"d-M-Y H:i:s" }}</td>
                 <td>{{ task.dt_end|date:"d-M-Y H:i:s" }}</td>
-                <td>{{ task.observations }}</td>
+                <td style="width: 30%;">{{ task.observations|textarea }}</td>
                 <td style="width: 185px;">
                     {{ task|available_actions }}
                 </td>

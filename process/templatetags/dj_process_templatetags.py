@@ -78,3 +78,16 @@ def available_actions(task):
     if actions:
         response = html.format(forms="\n".join(actions))
     return mark_safe(response)
+
+
+@register.filter(name='textarea', is_safe=True)
+def textarea(content):
+    if not content:
+        return content
+
+    rows = len(content.split('\n'))
+    return mark_safe(
+        '<textarea readonly cols="90" rows="{rows}" style="border-color: #0000000a;">{content}</textarea>'.format(
+            **{'content': content, 'rows': 20 if rows > 20 else rows}
+        )
+    )
