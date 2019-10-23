@@ -29,7 +29,6 @@ class ProcessGenericListView(ProcessSecurity, ListView):
     paginate_by = get_conf('views__paginate')
     template_name = get_conf('views__templates__objects_list')
     filters = {}
-    filters_apply = {}
 
     def get_filters_from_request(self):
         # convert set to python dict
