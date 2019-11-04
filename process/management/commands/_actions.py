@@ -24,12 +24,12 @@ def configure_env():
         json.dump(environment, f)
 
 
-def run_jobs():
+def run_jobs(date):
     """
     Start Job and it's tasks
     """
     for pr in Process.objects.filter(is_active=True):
-        must_run = pr.must_run()
+        must_run = pr.must_run(date)
         logger.debug(f'process {pr} must run {must_run}')
         if must_run:
             try:

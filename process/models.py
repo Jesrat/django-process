@@ -129,12 +129,12 @@ class Process(models.Model):
         return any([self.day_of_week == '*',
                     self.current_time.isoweekday() in self._expanded(self.day_of_week, 'day_of_week')])
 
-    def must_run(self):
+    def must_run(self, date):
         """
         This method is used to check if the Job should be executed by time
         :return: Boolean
         """
-        self.current_time = datetime.now()
+        self.current_time = date
         return all([self._minute(), self._hour(), self._day_of_month(), self._month(), self._day_of_week()])
 
 

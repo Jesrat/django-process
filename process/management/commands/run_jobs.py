@@ -16,10 +16,11 @@ class Command(BaseCommand):
             while True:
                 time.sleep(0.1)
 
-                if datetime.now().second == 0 and jobs_start_unlocked:
+                now = datetime.now()
+                if now.second == 0 and jobs_start_unlocked:
                     jobs_start_unlocked = False
-                    run_jobs()
-                elif datetime.now().second != 0:
+                    run_jobs(now)
+                elif now.second != 0:
                     jobs_start_unlocked = True
 
                 run_awaiting_tasks()
