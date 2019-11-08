@@ -43,12 +43,12 @@ def run_jobs(date):
 
             if not pr.run_if_err and last_job.status == Job.error:
                 logger.error(f'job {pr} will not run because previous job status its error')
-                return
+                continue
 
             if not pr.run_overlap and last_job.status == Job.initialized:
                 logger.error(f'job {pr} will not run because previous job has not finished '
                              f'and this job does not allow overlap')
-                return
+                continue
 
             job, tasks = Job.create(pr)
 
