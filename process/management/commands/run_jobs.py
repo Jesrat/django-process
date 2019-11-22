@@ -1,14 +1,18 @@
 import time
+import logging
 from datetime import datetime
 from django.core.management.base import BaseCommand, CommandError
 
 from ._actions import configure_env, run_jobs, run_awaiting_tasks, finish_jobs
+
+logger = logging.getLogger('django-process')
 
 
 class Command(BaseCommand):
     help = 'Run All Jobs'
 
     def handle(self, *args, **options):
+        logger.info('django-process run_jobs started')
         configure_env()
         try:
             # This var will prevent many jobs started from the same process in the 0 second

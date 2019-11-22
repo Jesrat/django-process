@@ -1,4 +1,3 @@
-import os
 import sys
 import logging
 import subprocess
@@ -26,7 +25,7 @@ class TaskThreaded(Thread):
 
                 cmd += self.obj.task.arguments.split()
 
-                logger.debug(f'command to execute {cmd}')
+                logger.info(f'command to execute {cmd}')
 
                 p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 stdout, stderr = p.communicate()
