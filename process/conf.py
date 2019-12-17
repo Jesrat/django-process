@@ -38,7 +38,13 @@ def get_conf(conf):
         raise
 
 
+def dummy_task_error_handler(task_id, exception): pass
+
+
 default_settings = {
+    'task': {
+        'error_handler': dummy_task_error_handler
+    },
     'views': {
         'paginate': 20,
         'security_raise_exception': True,
