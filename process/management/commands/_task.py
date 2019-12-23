@@ -46,7 +46,9 @@ class TaskThreaded(Thread):
                 logger.error(f'task {self.obj} finished with error {self.obj.observations}')
                 self.obj.job.save()
                 # if there is a custom handler send task id and exception to it
-                get_conf('task__error_handler')(self.obj, e)
+                error_handler_func = get_conf('task__error_handler')
+                logger.info(f'sending info to handler {error_handler_func.__name__}')
+                error_handler_func(self.obj, e)
 
             self.obj.dt_end = datetime.now()
             self.obj.save()
