@@ -1,7 +1,7 @@
 import logging
 from django.contrib import messages
 from django.urls import reverse_lazy
-from django.views.generic.list import View, ListView
+from django.views.generic.list import ListView
 from django.utils.translation import gettext_lazy as _
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -12,6 +12,7 @@ from process.conf import get_conf
 logger = logging.getLogger('django-process')
 
 
+# noinspection PyUnresolvedReferences
 class ProcessSecurity(LoginRequiredMixin, UserPassesTestMixin):
     raise_exception = get_conf('views__security_raise_exception')
 
@@ -50,6 +51,7 @@ class ProcessGenericListView(ProcessSecurity, ListView):
         return context
 
 
+# noinspection PyUnresolvedReferences
 class ProcessGenericEditView(ProcessSecurity, SuccessMessageMixin):
     fields = '__all__'
     template_name = get_conf('views__templates__object_edit')

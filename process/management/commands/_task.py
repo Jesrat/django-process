@@ -1,3 +1,4 @@
+import os
 import sys
 import logging
 import subprocess
@@ -23,8 +24,18 @@ class TaskThreaded(Thread):
                 else:
                     cmd = self.obj.task.interpreter.split()
 
+                # noinspection SpellCheckingInspection
+                if self.obj.task.code.file.__class__.__name__ == 'S3Boto3StorageFile':
+                    os.makedirs('/tmp/dj_process_tasks')
+                    file_path = os.path.join('/tmp', self.obj.task.code.file.name)
+                    if not os.path.isfile(file_path):
+                        with open(file_path, 'wb') as code:
+                            code.write(self.obj.task.code.file.read())
+                else:
+                    file_path = self.obj.task.code.path
+
                 # append task file path and arguments if they exists
-                cmd.append(self.obj.task.code.path)
+                cmd.append(file_path)
                 cmd += self.obj.task.arguments.split()
 
                 logger.info(f'command to execute {cmd}')

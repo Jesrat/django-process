@@ -6,13 +6,14 @@ from datetime import datetime
 from django.conf import settings
 from django.db.models import ObjectDoesNotExist
 
-logger = logging.getLogger('django-process')
-
 from process.models import Process, Job, JobTask
 from ._task import TaskThreaded
 
+logger = logging.getLogger('django-process')
+
 
 def configure_env():
+    # noinspection PyUnresolvedReferences
     module = importlib.util.find_spec('process')
     mod_location = os.path.dirname(module.origin)
     env_file = os.path.join(mod_location, 'env_conf.json')
@@ -50,7 +51,7 @@ def run_jobs(date):
                              f'and this job does not allow overlap')
                 continue
 
-            job, tasks = Job.create(pr)
+            __, __ = Job.create(pr)
 
 
 def run_awaiting_tasks():

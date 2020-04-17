@@ -38,9 +38,11 @@ def get_conf(conf):
         raise
 
 
+# noinspection PyUnusedLocal
 def dummy_task_error_handler(task_id, exception): pass
 
 
+# noinspection SpellCheckingInspection
 default_settings = {
     'task': {
         'error_handler': dummy_task_error_handler

@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.shortcuts import redirect
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from django.db import transaction, DatabaseError
+from django.db import transaction
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
@@ -41,6 +41,7 @@ class TaskCreateView(ProcessGenericCreateView):
     permissions = get_conf('views__task__create__permissions')
     redirect_to_edit = get_conf('views__task__create__redirect_to_edit')
 
+    # noinspection PyTypeChecker
     def post(self, request, *args, **kwargs):
         self.object = None
         form_class = self.get_form_class()
@@ -73,6 +74,7 @@ class TaskUpdateView(ProcessGenericUpdateView):
         'code',
     ]
 
+    # noinspection PyUnresolvedReferences
     def get_context_data(self, **kwargs):
         if 'form' not in kwargs:
             kwargs['form'] = self.get_form()
@@ -94,13 +96,14 @@ class TaskUpdateView(ProcessGenericUpdateView):
 
         return super().get_context_data(**kwargs)
 
+    # noinspection PyUnresolvedReferences
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         form = self.get_form()
 
         parents = self.object.parents.filter(parent__id__in=request.POST.getlist('parents')).\
-                extra(select={"badge": "'primary'", 'is_new': "''"}).\
-                values('parent__id', 'parent__name', 'badge', 'is_new')
+            extra(select={"badge": "'primary'", 'is_new': "''"}).\
+            values('parent__id', 'parent__name', 'badge', 'is_new')
 
         new_parents = Task.objects.filter(id__in=request.POST.getlist('new-parents')). \
             extra(select={'parent__id': 'id', 'parent__name': 'name', 'badge': "'info'", 'is_new': "'new-'"}). \
@@ -118,11 +121,11 @@ class TaskUpdateView(ProcessGenericUpdateView):
                 for new_parent in new_parents:
                     new_parent['badge'] = 'danger'
                     parent_task = get_object_or_404(Task, id=new_parent['parent__id'])
-                    obj, created = TaskDependence.objects.get_or_create(task=self.object, parent=parent_task)
+                    __, __ = TaskDependence.objects.get_or_create(task=self.object, parent=parent_task)
                     new_parent['badge'] = 'primary'
 
                 for current in self.object.parents.all():
-                    if not current.parent.id in [i['parent__id'] for i in parents] + \
+                    if current.parent.id not in [i['parent__id'] for i in parents] + \
                            [i['parent__id'] for i in new_parents]:
                         current.delete()
             messages.success(request, self.success_message)

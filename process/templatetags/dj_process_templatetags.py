@@ -46,6 +46,7 @@ def parents_as_badges(parents):
     return mark_safe(response)
 
 
+# noinspection SpellCheckingInspection
 @register.filter(name='available_actions', is_safe=True)
 def available_actions(task):
     html = """
@@ -80,6 +81,7 @@ def available_actions(task):
     return mark_safe(response)
 
 
+# noinspection SpellCheckingInspection
 @register.filter(name='textarea', is_safe=True)
 def textarea(content):
     if not content:

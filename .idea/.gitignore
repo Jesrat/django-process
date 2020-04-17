@@ -1,4 +1,5 @@
 # Default ignored files
+.idea/
+/codeStyles/Project.xml
 /workspace.xml
-# Default ignored files
-/workspace.xml
+/dbnavigator.xml

@@ -1,7 +1,7 @@
 import time
 import logging
 from datetime import datetime
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
 from ._actions import configure_env, run_jobs, run_awaiting_tasks, finish_jobs
 

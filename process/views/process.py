@@ -30,6 +30,7 @@ class ProcessListView(ProcessGenericListView):
 
     def post(self, request, *args, **kwargs):
         request = ProcessRunOnDemandView.as_view()(request)
+        # noinspection PyTypeChecker
         return self.get(request, *args, **kwargs)
 
 
@@ -50,10 +51,11 @@ class ProcessDeleteView(ProcessGenericDeleteView):
 class ProcessRunOnDemandView(ProcessSecurity, View):
     permissions = get_conf('views__process__run__permissions')
 
+    # noinspection PyUnusedLocal
     def post(self, request, *args, **kwargs):
         try:
             process = get_object_or_404(Process, id=self.request.POST['process'])
-            job, tasks = Job.create(process)
+            __, __ = Job.create(process)
         except Exception as e:
             messages.error(request, _(f'{e}'))
         finally:

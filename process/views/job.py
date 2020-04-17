@@ -23,6 +23,7 @@ class JobListView(ProcessGenericListView):
 
     def post(self, request, *args, **kwargs):
         request = JobCancelView.as_view()(request)
+        # noinspection PyTypeChecker
         return self.get(request, *args, **kwargs)
 
 
@@ -36,6 +37,7 @@ class JobDeleteView(ProcessGenericDeleteView):
 class JobCancelView(ProcessSecurity, View):
     permissions = get_conf('views__job__cancel__permissions')
 
+    # noinspection PyUnusedLocal
     def post(self, request, *args, **kwargs):
         logger.debug(f'cancel job i got post request=> {self.request.POST}')
         try:

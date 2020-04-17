@@ -16,6 +16,7 @@ from process.models import JobTask
 logger = logging.getLogger('django-process')
 
 
+# noinspection SpellCheckingInspection
 class JobTaskDeleteView(ProcessGenericDeleteView):
     model = JobTask
     success_url = get_conf('views__jobtask__delete__success_url')
@@ -23,6 +24,7 @@ class JobTaskDeleteView(ProcessGenericDeleteView):
     permissions = get_conf('views__jobtask__delete__permissions')
 
 
+# noinspection SpellCheckingInspection
 class JobTaskListView(ProcessGenericListView):
     model = JobTask
     title = 'JobTasks'
@@ -35,12 +37,15 @@ class JobTaskListView(ProcessGenericListView):
 
     def post(self, request, *args, **kwargs):
         request = JobTaskManagementView.as_view()(request)
+        # noinspection PyTypeChecker
         return self.get(request, *args, **kwargs)
 
 
+# noinspection SpellCheckingInspection
 class JobTaskManagementView(ProcessSecurity, View):
     permissions = get_conf('views__jobtask__management__permissions')
 
+    # noinspection PyUnusedLocal
     def post(self, request, *args, **kwargs):
         try:
             logger.debug(f'cancel job i got post request=> {self.request.POST}')

@@ -11,6 +11,7 @@ from django.core.validators import RegexValidator, FileExtensionValidator
 logger = logging.getLogger('django-process')
 
 
+# noinspection SpellCheckingInspection
 class Process(models.Model):
     """
     The Process class this will define the execute options for the process
@@ -60,7 +61,7 @@ class Process(models.Model):
         :param var:
         :return: string of unique items expanded
         """
-        def item_validator(i):
+        def item_validator(item):
             val_range = [0, 0]
             if type_val == 'minute':
                 val_range = [0, 59]
@@ -73,9 +74,9 @@ class Process(models.Model):
             elif type_val == 'day_of_week':
                 val_range = [0, 6]
 
-            if not val_range[0] <= int(i) <= val_range[1]:
+            if not val_range[0] <= int(item) <= val_range[1]:
                 raise ValueError
-            return int(i)
+            return int(item)
             
         # if content it is a star it is ok means all
         if var == '*':
@@ -138,6 +139,7 @@ class Process(models.Model):
         return all([self._minute(), self._hour(), self._day_of_month(), self._month(), self._day_of_week()])
 
 
+# noinspection SpellCheckingInspection
 class Task(models.Model):
     """
     Task class contains the code that will be executed in each task of the process
@@ -180,6 +182,7 @@ class Task(models.Model):
         return extension.lstrip('.')
 
 
+# noinspection SpellCheckingInspection
 class TaskDependence(models.Model):
     """
     Identifies the relationship between tasks
@@ -217,6 +220,7 @@ class TaskDependence(models.Model):
         return super().save(*args, **kwargs)
 
 
+# noinspection SpellCheckingInspection
 class Job(models.Model):
     """
     A Job is an instance of a Process that has been executed
@@ -280,12 +284,14 @@ class Job(models.Model):
                 raise ProcessException('job status is not initialized')
             with transaction.atomic():
                 self.status = Job.cancelled
+                # noinspection PyUnresolvedReferences
                 self.tasks.filter(status__in=JobTask.can_cancel).update(status=JobTask.cancelled)
                 self.save()
         except DatabaseError as e:
             raise ProcessException(e)
 
 
+# noinspection SpellCheckingInspection
 class JobTask(models.Model):
     """
     A JobTask its an instance of a Task that has been executed ant its related to the Job Instance

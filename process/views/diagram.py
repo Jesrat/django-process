@@ -1,8 +1,9 @@
 import logging
 from django.shortcuts import render
+from django.views import View
 
 from process.conf import get_conf
-from .generic_views import View, ProcessSecurity
+from .generic_views import ProcessSecurity
 
 
 from process.models import Job
@@ -18,6 +19,7 @@ class DiagramView(ProcessSecurity, View):
         super().__init__(*args, **kwargs)
         self.permissions = ['view_jobs'] if self.model == Job else ['view_processes']
 
+    # noinspection PyUnusedLocal
     def get(self, request, pk, *args, **kwargs):
         obj = self.model.objects.get(id=pk)
         return render(request, self.template, {'object': obj})

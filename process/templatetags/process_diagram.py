@@ -6,6 +6,7 @@ from ..models import Process, Job, JobTask
 
 register = template.Library()
 
+# noinspection SpellCheckingInspection
 html = """
 <div id="container-process-{id}"></div>
 <script>
@@ -81,6 +82,7 @@ def diagram(obj):
 
     data = []
     nodes = []
+    # noinspection PyUnresolvedReferences
     for task in obj.tasks.all():
         nodes.append(get_task_as_node(task))
         tk = task if isinstance(obj, Process) else task.task
