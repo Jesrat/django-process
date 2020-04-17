@@ -6,6 +6,7 @@ django_process.egg-info/PKG-INFO
 django_process.egg-info/SOURCES.txt
 django_process.egg-info/dependency_links.txt
 django_process.egg-info/not-zip-safe
+django_process.egg-info/requires.txt
 django_process.egg-info/top_level.txt
 process/__init__.py
 process/admin.py
@@ -14,7 +15,6 @@ process/conf.py
 process/env.py
 process/exceptions.py
 process/models.py
-process/tests.py
 process/urls.py
 process/management/__init__.py
 process/management/commands/__init__.py
