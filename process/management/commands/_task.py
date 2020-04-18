@@ -37,7 +37,8 @@ class TaskThreaded(Thread):
 
                 # append task file path and arguments if they exists
                 cmd.append(file_path)
-                cmd += self.obj.task.arguments.split()
+                if self.obj.task.arguments:
+                    cmd += self.obj.task.arguments.split()
 
                 logger.info(f'command to execute {cmd}')
 
