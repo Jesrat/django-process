@@ -26,7 +26,8 @@ class TaskThreaded(Thread):
 
                 # noinspection SpellCheckingInspection
                 if self.obj.task.code.file.__class__.__name__ == 'S3Boto3StorageFile':
-                    os.makedirs('/tmp/dj_process_tasks')
+                    if not os.path.isdir('/tmp/dj_process_tasks'):
+                        os.makedirs('/tmp/dj_process_tasks')
                     file_path = os.path.join('/tmp', self.obj.task.code.file.name)
                     if not os.path.isfile(file_path):
                         with open(file_path, 'wb') as code:
