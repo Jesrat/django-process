@@ -1,7 +1,7 @@
 import time
 import logging
-from datetime import datetime
 from django.core.management.base import BaseCommand
+from django.utils import timezone
 
 from ._actions import configure_env, run_jobs, run_awaiting_tasks, finish_jobs
 
@@ -20,7 +20,7 @@ class Command(BaseCommand):
             while True:
                 time.sleep(0.1)
 
-                now = datetime.now()
+                now = timezone.now()
                 if now.second == 0 and jobs_start_unlocked:
                     jobs_start_unlocked = False
                     run_jobs(now)

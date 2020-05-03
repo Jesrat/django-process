@@ -1,10 +1,9 @@
 import logging
-from django.contrib import messages
-from django.shortcuts import redirect
-from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404
-from django.db import transaction
 from django.core.exceptions import ValidationError
+from django.contrib import messages
+from django.db import transaction
+from django.http import HttpResponseRedirect
+from django.shortcuts import redirect, get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
 from process.conf import get_conf

@@ -2,9 +2,9 @@ import os
 import json
 import logging
 import importlib
-from datetime import datetime
 from django.conf import settings
 from django.db.models import ObjectDoesNotExist
+from django.utils import timezone
 
 from process.models import Process, Job, JobTask
 from ._task import TaskThreaded
@@ -81,5 +81,5 @@ def finish_jobs():
     for job in jobs:
         if custom_all([i.status in JobTask.ok_status for i in job.tasks.all()]):
             job.status = Job.finished
-            job.dt_end = datetime.now()
+            job.dt_end = timezone.now()
             job.save()

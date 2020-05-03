@@ -2,8 +2,8 @@ import os
 import sys
 import logging
 import subprocess
-from datetime import datetime
 from threading import Thread
+from django.utils import timezone
 
 from process.conf import get_conf
 from process.models import Job, JobTask
@@ -63,7 +63,7 @@ class TaskThreaded(Thread):
                 logger.info(f'sending info to handler {error_handler_func.__name__}')
                 error_handler_func(self.obj, e)
 
-            self.obj.dt_end = datetime.now()
+            self.obj.dt_end = timezone.now()
             self.obj.save()
         except Exception as e:
             logger.exception(f'error {e} when processing task {self.obj}')

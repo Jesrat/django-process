@@ -1,13 +1,14 @@
 import re
 import os
 import logging
-from datetime import datetime
-from process.exceptions import ProcessException
 from django.core.exceptions import ValidationError
-from django.utils.translation import gettext_lazy as _
-from django.db import models, transaction, DatabaseError
 from django.core.validators import RegexValidator, FileExtensionValidator
+from django.db import models, transaction, DatabaseError
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
+
+from process.exceptions import ProcessException
 logger = logging.getLogger('django-process')
 
 
@@ -433,14 +434,14 @@ class JobTask(models.Model):
 
         # DT_START
         if status == JobTask.initialized:
-            self.dt_start = datetime.now()
+            self.dt_start = timezone.now()
             self.observations = ''
 
         # DT_END trunc or set
         if status in JobTask.trunc_end_dt:
             self.dt_end = None
         elif status in JobTask.set_end_dt:
-            self.dt_end = datetime.now()
+            self.dt_end = timezone.now()
 
         self.status = status
         self.save()

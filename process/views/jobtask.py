@@ -1,12 +1,13 @@
 import logging
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
-from django.shortcuts import get_object_or_404
-from django.utils.translation import gettext_lazy as _
 from django.contrib import messages
+from django.utils.decorators import method_decorator
+from django.utils.translation import gettext_lazy as _
+from django.shortcuts import get_object_or_404
+from django.views import View
+from django.views.decorators.csrf import csrf_exempt
+
 from process.conf import get_conf
 from .generic_views import (
-    View,
     ProcessSecurity,
     ProcessGenericListView,
     ProcessGenericDeleteView
