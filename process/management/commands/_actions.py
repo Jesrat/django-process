@@ -21,8 +21,14 @@ def configure_env():
         'project_path': settings.BASE_DIR,
         'project_settings': os.environ.get('DJANGO_SETTINGS_MODULE')
     }
-    with open(env_file, 'w') as f:
-        json.dump(environment, f)
+    try:
+        with open(env_file, 'w') as f:
+            json.dump(environment, f)
+    except Exception as e:
+        logger.exception(f'django-process environment could not be configured due to =>\n{e}')
+        logger.debug('configuring to current working directory instead')
+        with open(os.path.join(os.getcwd(), 'env_conf.json'), 'w') as f:
+            json.dump(environment, f)
 
 
 def run_jobs(date):

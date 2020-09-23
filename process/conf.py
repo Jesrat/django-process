@@ -74,21 +74,21 @@ default_settings = {
             'create': {
                 'success_url': 'process-processes',
                 'success_message': _('process created successfully'),
-                'permissions': ['process.view_processes', 'process.add_processes'],
+                'permissions': ['process.view_processes', 'process.add_process'],
             },
             'list': {
                 'url_allow_filters': {'id': []},
-                'permissions': ['view_processes'],
+                'permissions': ['process.view_processes'],
             },
             'update': {
                 'success_url': 'process-processes',
                 'success_message': _('process updated successfully'),
-                'permissions': ['process.view_processes', 'process.change_processes'],
+                'permissions': ['process.view_processes', 'process.change_process'],
             },
             'delete': {
                 'success_url': 'process-processes',
                 'success_message': _('process deleted successfully'),
-                'permissions': ['process.view_processes', 'process.delete_processes'],
+                'permissions': ['process.view_processes', 'process.delete_process'],
             },
         },
         'task': {
@@ -96,7 +96,7 @@ default_settings = {
                 'success_url': 'process-tasks',
                 'success_message': _('task created successfully'),
                 'redirect_to_edit': True,
-                'permissions': ['process.view_tasks', 'process.add_tasks'],
+                'permissions': ['process.view_tasks', 'process.add_task'],
             },
             'list': {
                 'url_allow_filters': {'id': [], 'process__id': []},
@@ -105,12 +105,12 @@ default_settings = {
             'update': {
                 'success_url': 'process-tasks',
                 'success_message': _('task updated successfully'),
-                'permissions': ['process.view_tasks', 'process.change_tasks'],
+                'permissions': ['process.view_tasks', 'process.change_task'],
             },
             'delete': {
                 'success_url': 'process-tasks',
                 'success_message': _('task deleted successfully'),
-                'permissions': ['process.view_tasks', 'process.delete_tasks'],
+                'permissions': ['process.view_tasks', 'process.delete_task'],
             },
         },
         'job': {
@@ -121,7 +121,7 @@ default_settings = {
             'delete': {
                 'success_url': 'process-jobs',
                 'success_message': _('job deleted successfully'),
-                'permissions': ['process.view_jobs', 'process.delete_jobs'],
+                'permissions': ['process.view_jobs', 'process.delete_job'],
             },
             'cancel': {
                 'success_message': _('job cancelled successfully'),

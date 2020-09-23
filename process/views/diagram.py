@@ -17,7 +17,7 @@ class DiagramView(ProcessSecurity, View):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.permissions = ['view_jobs'] if self.model == Job else ['view_processes']
+        self.permissions = ['process.view_jobs'] if self.model == Job else ['process.view_processes']
 
     # noinspection PyUnusedLocal
     def get(self, request, pk, *args, **kwargs):
