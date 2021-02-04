@@ -2,6 +2,7 @@
 # Django Process
 
 Its a reusable app for execute scrits in workflows with dependecies
+NEW VERSION 4.6 it allows you to use the complete app from the admin site with the graphics and custom actions
 
 ## Table of Contents
 * [usage](#usage)
