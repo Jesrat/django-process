@@ -136,6 +136,7 @@ class Process(models.Model):
         This method is used to check if the Job should be executed by time
         :return: Boolean
         """
+        # noinspection PyAttributeOutsideInit
         self.current_time = date
         return all([self._minute(), self._hour(), self._day_of_month(), self._month(), self._day_of_week()])
 
@@ -308,7 +309,7 @@ class JobTask(models.Model):
 
     can_force = [error]
     can_retry = [error]
-    can_reopen = [finished, cancelled, forced]
+    can_reopen = [finished, cancelled, forced, reopened]
     can_cancel = [awaiting, error]
 
     run_status = [awaiting, reopened, retry]
@@ -353,6 +354,13 @@ class JobTask(models.Model):
     dt_end = models.DateTimeField(_("end date"), blank=True, null=True)
     observations = models.TextField(_("observations"), blank=True, null=True)
     objects = models.Manager()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        try:
+            self._status = self.status
+        except Exception:
+            self._status = ''
 
     def __str__(self):
         return f'{self.job}[{self.task.name}][{self.status}]'
@@ -405,43 +413,45 @@ class JobTask(models.Model):
 
     def reopen(self, main=None):
         if main and self.status not in JobTask.can_reopen:
-            raise ProcessException(_(f"can't reopen current status not valid"))
+            raise ValidationError({'status': _(f"can't reopen current status not valid")})
 
         for child in self.get_childs():
             child.reopen()
 
-        self.set_status(JobTask.reopened if main else JobTask.awaiting)
+        self.status = JobTask.reopened if main else JobTask.awaiting
+        self.save()
 
-    def set_status(self, status):
+    def clean(self):
         # check available status
-        if status not in [i[0] for i in JobTask.status_choices]:
-            raise ProcessException(_(f'status requested {status} not in status choices'))
+        if self.status not in [i[0] for i in JobTask.status_choices]:
+            raise ValidationError({'status': _(f'status requested {status} not in status choices')})
         
         # check if new status is available for current status
-        if status == JobTask.cancelled and self.status not in JobTask.can_cancel:
-            raise ProcessException(_(f"can't cancel current status not valid"))
-        elif status == JobTask.retry and self.status not in JobTask.can_retry:
-            raise ProcessException(_(f"can't retry current status not valid"))
-        elif status == JobTask.forced and self.status not in JobTask.can_force:
-            raise ProcessException(_(f"can't retry current status not valid"))
-
-        # if it will run then trunc observations
-        if status in JobTask.run_status:
-            self.observations = ''
-            if self.job.status in [Job.error, Job.finished]:
-                self.job.status = Job.initialized
-                self.job.save()
+        if self.status == JobTask.cancelled and self._status not in JobTask.can_cancel:
+            raise ValidationError({'status': _(f"can't cancel current status not valid")})
+        elif self.status == JobTask.retry and self._status not in JobTask.can_retry:
+            raise ValidationError({'status': _(f"can't retry current status not valid")})
+        elif self.status == JobTask.forced and self._status not in JobTask.can_force:
+            raise ValidationError({'status': _(f"can't retry current status not valid")})
 
         # DT_START
-        if status == JobTask.initialized:
+        if self.status == JobTask.initialized:
             self.dt_start = timezone.now()
             self.observations = ''
 
         # DT_END trunc or set
-        if status in JobTask.trunc_end_dt:
+        if self.status in JobTask.trunc_end_dt:
             self.dt_end = None
-        elif status in JobTask.set_end_dt:
+        elif self.status in JobTask.set_end_dt:
             self.dt_end = timezone.now()
 
-        self.status = status
-        self.save()
+    def save(self, **kwargs):
+        self.full_clean()
+        super().save(**kwargs)
+
+        # if it will run then trunc observations
+        if self.status in JobTask.run_status:
+            self.observations = ''
+            if self.job.status in [Job.error, Job.finished]:
+                self.job.status = Job.initialized
+                self.job.save()

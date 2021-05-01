@@ -64,6 +64,9 @@ class JobTaskForm(forms.ModelForm):
         model = JobTask
         fields = '__all__'
 
+    def save_m2m(self):
+        pass
+
     def save(self, **kwargs):
         if self.instance.status == JobTask.reopened:
             self.instance.reopen(main=True)

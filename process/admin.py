@@ -56,7 +56,7 @@ class JobAdmin(admin.ModelAdmin):
             return 'process', 'status', 'dt_start', 'dt_end', 'observations'
         return 'process', 'dt_start', 'dt_end', 'observations'
 
-    def get_queryst(self, request):
+    def get_queryset(self, request):
         qs = Job.objects.all().prefetch_related('process')
         # TODO: this should be handled by some parameter to the ChangeList.
         ordering = self.get_ordering(request)
@@ -107,6 +107,14 @@ class JobTaskAdmin(admin.ModelAdmin):
         if obj:
             return self.readonly_fields + ('job', 'task', 'dt_start', 'dt_end', 'observations')
         return self.readonly_fields
+
+    def get_queryset(self, request):
+        qs = JobTask.objects.all().select_related('job', 'task', 'task__process', 'job__process')
+        # TODO: this should be handled by some parameter to the ChangeList.
+        ordering = self.get_ordering(request)
+        if ordering:
+            qs = qs.order_by(*ordering)
+        return qs
 
     # noinspection PyMethodMayBeStatic, PyUnusedLocal
     def has_add_permission(self, request):
