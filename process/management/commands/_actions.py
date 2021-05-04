@@ -67,7 +67,6 @@ def run_awaiting_tasks():
     for task in JobTask.objects.filter(status__in=JobTask.run_status):
         if task.ready_to_run:
             # mark task instance as initialized
-            task.set_status(JobTask.initialized)
             TaskThreaded(task).start()
 
 

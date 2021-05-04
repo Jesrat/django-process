@@ -55,7 +55,8 @@ class JobTaskManagementView(ProcessSecurity, View):
             if action == JobTask.reopened:
                 task.reopen(main=True)
             else:
-                task.set_status(action)
+                task.status = action
+                task.save()
 
             messages.success(request, get_conf('views__jobtask__management__success_message').format(action=action))
         except Exception as e:

@@ -14,6 +14,8 @@ class TaskThreaded(Thread):
     def __init__(self, obj, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.obj = obj
+        self.obj.status = JobTask.initialized
+        self.obj.save()
 
     def run(self):
         try:
@@ -49,12 +51,12 @@ class TaskThreaded(Thread):
                 if p.returncode:
                     raise Exception(stderr.decode('utf-8'))
 
-                self.obj.set_status(JobTask.finished)
+                self.obj.status = JobTask.finished
 
             except Exception as e:
                 # if error then send to logger and also mark task and it's job as error
                 self.obj.observations += f"\nexception when running task {e}"
-                self.obj.set_status(JobTask.error)
+                self.obj.status = JobTask.error
                 self.obj.job.status = Job.error
                 logger.error(f'task {self.obj} finished with error {self.obj.observations}')
                 self.obj.job.save()
