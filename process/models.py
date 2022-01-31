@@ -415,11 +415,11 @@ class JobTask(models.Model):
         if main and self.status not in JobTask.can_reopen:
             raise ValidationError({'status': _(f"can't reopen current status not valid")})
 
-        for child in self.get_childs():
-            child.reopen()
-
         self.status = JobTask.reopened if main else JobTask.awaiting
         self.save()
+
+        for child in self.get_childs():
+            child.reopen()
 
     def clean(self):
         # check available status
