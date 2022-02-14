@@ -27,6 +27,7 @@ class Process(models.Model):
     day_of_month = models.CharField(_("day of month"), max_length=50)
     month = models.CharField(_("month"), max_length=50)
     day_of_week = models.CharField(_("day of week"), max_length=50)
+    chart_height = models.PositiveIntegerField(_("chart height"), default=0)
     objects = models.Manager()
 
     def __str__(self):

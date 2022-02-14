@@ -12,7 +12,7 @@ html = """
 <script>
 Highcharts.chart('container-process-{id}', {
   chart: {
-    height: """ + get_conf('diagram__chart_height') + """,
+    height: {chart_height},
     inverted: true
   },
   title: {
@@ -97,4 +97,5 @@ def diagram(obj):
     response = response.replace('{name}', str(obj.__str__()))
     response = response.replace('{data}', str(data))
     response = response.replace('{nodes}', str(nodes))
+    response = response.replace('{chart_height}', process.chart_height or get_conf('diagram__chart_height'))
     return mark_safe(response)
