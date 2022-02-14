@@ -97,5 +97,5 @@ def diagram(obj):
     response = response.replace('{name}', str(obj.__str__()))
     response = response.replace('{data}', str(data))
     response = response.replace('{nodes}', str(nodes))
-    response = response.replace('{chart_height}', process.chart_height or get_conf('diagram__chart_height'))
+    response = response.replace('{chart_height}', str(process.chart_height) or get_conf('diagram__chart_height'))
     return mark_safe(response)
