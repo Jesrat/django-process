@@ -277,7 +277,7 @@ class Job(models.Model):
         job.save()
         ret_tasks = []
         if job.status != 'finished':
-            tasks = Task.objects.filter(is_active=True, process=process)
+            tasks = Task.objects.filter(is_active=True, process=process).order_by('level')
             ret_tasks = [JobTask.create(job, t) for t in tasks]
         return job, ret_tasks
 
