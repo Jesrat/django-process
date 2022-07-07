@@ -101,6 +101,7 @@ class JobAdmin(admin.ModelAdmin):
 @admin.register(JobTask)
 class JobTaskAdmin(admin.ModelAdmin):
     form = JobTaskForm
+    list_filter = ('status',)
     list_display = ('__str__', 'dt_start', 'dt_end', 'observations')
 
     def get_readonly_fields(self, request, obj=None):

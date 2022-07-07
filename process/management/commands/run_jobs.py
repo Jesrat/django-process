@@ -11,6 +11,7 @@ logger = logging.getLogger('django-process')
 class Command(BaseCommand):
     help = 'Run All Jobs'
 
+    # noinspection PyMethodMayBeStatic
     def handle(self, *args, **options):
         logger.info('django-process run_jobs started')
         configure_env()

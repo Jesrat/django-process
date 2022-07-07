@@ -44,8 +44,14 @@ class TaskThreaded(Thread):
 
                 logger.info(f'command to execute {cmd}')
 
+                # executing the task and save the PID
                 p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                self.obj.pid = p.pid
+                self.obj.save()
+
+                # communicate to PID to get the standard output and error
                 stdout, stderr = p.communicate()
+
                 # return code must be 0 for success
                 self.obj.observations = stdout.decode('utf-8')
                 if p.returncode:

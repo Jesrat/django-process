@@ -271,7 +271,7 @@ class Job(models.Model):
         """
         this method creates a job-process instance and all its tasks, however if the job its created as finished it will
         not create any task, example the time has come for start a job but a previous instance is still running and the
-        process its configured for not overlap the new instance will be created as finished
+        process it's configured for not overlap the new instance will be created as finished
         """
         job = cls(process=process, *args, **kwargs)
         job.save()
@@ -297,7 +297,7 @@ class Job(models.Model):
 # noinspection SpellCheckingInspection
 class JobTask(models.Model):
     """
-    A JobTask its an instance of a Task that has been executed ant its related to the Job Instance
+    A JobTask is an instance of a Task that has been executed ant it is related to the Job Instance
     """
     initialized = 'initialized'
     awaiting = 'awaiting'
@@ -350,6 +350,7 @@ class JobTask(models.Model):
         related_name='logs'
     )
     status = models.CharField(_("status"), db_index=True, max_length=20, choices=status_choices, default=awaiting)
+    pid = models.PositiveIntegerField(_("pid"), default=0)
     dt_created = models.DateTimeField(_("created date"), blank=True, null=True, auto_now_add=True)
     dt_start = models.DateTimeField(_("start date"), blank=True, null=True)
     dt_end = models.DateTimeField(_("end date"), blank=True, null=True)
