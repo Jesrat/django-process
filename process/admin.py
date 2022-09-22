@@ -34,6 +34,7 @@ class ProcessAdmin(admin.ModelAdmin):
 class TaskAdmin(admin.ModelAdmin):
     form = TaskForm
     list_display = ('__str__', 'is_active', 'process')
+    search_fields = ('name', 'description')
 
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
     def get_readonly_fields(self, request, obj=None):
@@ -104,9 +105,10 @@ class JobTaskAdmin(admin.ModelAdmin):
     list_filter = ('status',)
     list_display = ('__str__', 'dt_start', 'dt_end', 'observations')
 
+    # noinspection PyUnusedLocal
     def get_readonly_fields(self, request, obj=None):
         if obj:
-            return self.readonly_fields + ('job', 'task', 'dt_start', 'dt_end', 'observations')
+            return self.readonly_fields + ('pid', 'job', 'task', 'dt_start', 'dt_end', 'observations')
         return self.readonly_fields
 
     def get_queryset(self, request):

@@ -350,7 +350,7 @@ class JobTask(models.Model):
         related_name='logs'
     )
     status = models.CharField(_("status"), db_index=True, max_length=20, choices=status_choices, default=awaiting)
-    pid = models.PositiveIntegerField(_("pid"), default=0)
+    pid = models.PositiveIntegerField(_("pid"), default=0, db_index=True)
     dt_created = models.DateTimeField(_("created date"), blank=True, null=True, auto_now_add=True)
     dt_start = models.DateTimeField(_("start date"), blank=True, null=True)
     dt_end = models.DateTimeField(_("end date"), blank=True, null=True)

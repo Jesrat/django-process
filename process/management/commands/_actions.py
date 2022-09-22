@@ -18,7 +18,7 @@ def configure_env():
     mod_location = os.path.dirname(module.origin)
     env_file = os.path.join(mod_location, 'env_conf.json')
     environment = {
-        'project_path': settings.BASE_DIR,
+        'project_path': str(settings.BASE_DIR),
         'project_settings': os.environ.get('DJANGO_SETTINGS_MODULE')
     }
     try:
