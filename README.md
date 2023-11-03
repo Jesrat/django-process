@@ -1,3 +1,20 @@
+<p align="center">
+    <a href="" alt="License">
+        <img src="https://img.shields.io/pypi/l/django-process.svg" />
+    </a>
+    <a href="https://pypi.org/project/django-process/" alt="Python Versions">
+        <img src="https://img.shields.io/pypi/pyversions/django-process.svg" />
+    </a>
+    <a href="https://pypi.org/project/django-process/" alt="Django Versions">
+        <img src="https://img.shields.io/pypi/djversions/django-process.svg" />
+    </a>
+    <a href="https://pypi.org/project/django-process/" alt="pypi Versions">
+        <img src="https://img.shields.io/pypi/v/django-process.svg" />
+    </a>
+    <a href="https://pypi.org/project/django-process/" alt="pypi version status">
+        <img src="https://img.shields.io/pypi/status/django-process.svg" />
+    </a>
+</p>
 
 # Django Process
 
