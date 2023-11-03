@@ -58,7 +58,7 @@ class Process(models.Model):
     @staticmethod
     def _expanded(var, type_val):
         """
-        gets an crontab like string and expands all items example
+        gets a crontab like string and expands all items example
         '1,2,3,7,4-9' will be expanded to '1,2,3,4,5,6,7,8,9'
         :param var:
         :return: string of unique items expanded
@@ -79,7 +79,7 @@ class Process(models.Model):
             if not val_range[0] <= int(item) <= val_range[1]:
                 raise ValueError
             return int(item)
-            
+
         # if content it is a star it is ok means all
         if var == '*':
             return []
@@ -87,7 +87,7 @@ class Process(models.Model):
         n3 = []
         ranges = []
         # separate ranged values and not ranged values to be validated
-        for i in var.split(','):
+        for i in str(var).split(','):
             if i.find('-') > -1 and len(re.findall('-', i)) == 1:
                 ranges.append(i.split('-'))
             elif i.find('-') == -1:
@@ -111,26 +111,30 @@ class Process(models.Model):
 
             for x in range(int(i[0]), int(i[1]) + 1):
                 n3.add(x)
-        
+
         # the set is complete
         return n3
 
     def _minute(self):
-        return any([self.minute == '*', self.current_time.minute in self._expanded(self.minute, 'minute')])
+        validation = self.current_time.minute in self._expanded(self.minute, 'minute')
+        return any([self.minute == '*', validation])
 
     def _hour(self):
-        return any([self.hour == '*', self.current_time.hour in self._expanded(self.hour, 'hour')])
+        validation = self.current_time.hour in self._expanded(self.hour, 'hour')
+        return any([self.hour == '*', validation])
 
     def _day_of_month(self):
-        return any([self.day_of_month == '*',
-                    self.current_time.day in self._expanded(self.day_of_month, 'day_of_month')])
+        validation = self.current_time.day in self._expanded(self.day_of_month, 'day_of_month')
+        return any([self.day_of_month == '*', validation])
 
     def _month(self):
-        return any([self.month == '*', self.current_time.month in self._expanded(self.month, 'month')])
+        validation = self.current_time.month in self._expanded(self.month, 'month')
+        return any([self.month == '*', validation])
 
     def _day_of_week(self):
-        return any([self.day_of_week == '*',
-                    self.current_time.isoweekday() in self._expanded(self.day_of_week, 'day_of_week')])
+        iso_week = self.current_time.isoweekday()
+        validation = iso_week in self._expanded(self.day_of_week, 'day_of_week')
+        return any([self.day_of_week == '*', validation])
 
     def must_run(self, date):
         """
@@ -190,8 +194,12 @@ class TaskDependence(models.Model):
     """
     Identifies the relationship between tasks
     """
-    parent = models.ForeignKey(Task, on_delete=models.CASCADE, verbose_name=_("parent task"), related_name='childs')
-    task = models.ForeignKey(Task, on_delete=models.CASCADE, verbose_name=_("child task"), related_name='parents')
+    parent = models.ForeignKey(
+        Task, on_delete=models.CASCADE, verbose_name=_("parent task"), related_name='childs'
+    )
+    task = models.ForeignKey(
+        Task, on_delete=models.CASCADE, verbose_name=_("child task"), related_name='parents'
+    )
     objects = models.Manager()
 
     def __str__(self):
@@ -246,10 +254,18 @@ class Job(models.Model):
         verbose_name=_("process"),
         related_name='jobs'
     )
-    status = models.CharField(_("status"), db_index=True, max_length=20, choices=status_choices, default=initialized)
-    dt_start = models.DateTimeField(_("start date"), blank=True, null=True, auto_now_add=True)
-    dt_end = models.DateTimeField(_("end date"), blank=True, null=True)
-    observations = models.CharField(_("observations"), max_length=500, blank=True, null=True)
+    status = models.CharField(
+        _("status"), db_index=True, max_length=20, choices=status_choices, default=initialized
+    )
+    dt_start = models.DateTimeField(
+        _("start date"), blank=True, null=True, auto_now_add=True
+    )
+    dt_end = models.DateTimeField(
+        _("end date"), blank=True, null=True
+    )
+    observations = models.CharField(
+        _("observations"), max_length=500, blank=True, null=True
+    )
     objects = models.Manager()
 
     def __str__(self):
@@ -359,6 +375,7 @@ class JobTask(models.Model):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # noinspection PyBroadException
         try:
             self._status = self.status
         except Exception:
@@ -386,7 +403,9 @@ class JobTask(models.Model):
         if self.status == JobTask.error:
             return f'{self.observations}'
         elif self.status == JobTask.awaiting:
-            parents = ', '.join([p.task.name for p in self.get_parents() if p.status != 'finished'])
+            parents = ', '.join(
+                [p.task.name for p in self.get_parents() if p.status != 'finished']
+            )
             return f'waiting for parent(s) {parents}'
         else:
             return self.task.description
@@ -415,7 +434,9 @@ class JobTask(models.Model):
 
     def reopen(self, main=None):
         if main and self.status not in JobTask.can_reopen:
-            raise ValidationError({'status': _(f"can't reopen current status not valid")})
+            raise ValidationError(
+                {'status': _("can't reopen current status not valid")}
+            )
 
         self.status = JobTask.reopened if main else JobTask.awaiting
         self.save()
@@ -426,15 +447,23 @@ class JobTask(models.Model):
     def clean(self):
         # check available status
         if self.status not in [i[0] for i in JobTask.status_choices]:
-            raise ValidationError({'status': _(f'status requested {status} not in status choices')})
+            raise ValidationError(
+                {'status': _(f'status requested {self.status} not in status choices')}
+            )
         
         # check if new status is available for current status
         if self.status == JobTask.cancelled and self._status not in JobTask.can_cancel:
-            raise ValidationError({'status': _(f"can't cancel current status not valid")})
+            raise ValidationError(
+                {'status': _("can't cancel current status not valid")}
+            )
         elif self.status == JobTask.retry and self._status not in JobTask.can_retry:
-            raise ValidationError({'status': _(f"can't retry current status not valid")})
+            raise ValidationError(
+                {'status': _("can't retry current status not valid")}
+            )
         elif self.status == JobTask.forced and self._status not in JobTask.can_force:
-            raise ValidationError({'status': _(f"can't retry current status not valid")})
+            raise ValidationError(
+                {'status': _("can't force current status not valid")}
+            )
 
         # DT_START
         if self.status == JobTask.initialized:
