@@ -35,6 +35,7 @@ class TaskAdmin(admin.ModelAdmin):
     form = TaskForm
     list_display = ('__str__', 'is_active', 'process')
     search_fields = ('name', 'description')
+    list_filter = ('process',)
 
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
     def get_readonly_fields(self, request, obj=None):

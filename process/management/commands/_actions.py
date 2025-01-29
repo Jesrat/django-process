@@ -64,10 +64,14 @@ def run_awaiting_tasks():
     """
     Run all pending tasks if their status is pending and their parent tasks are finished
     """
-    for task in JobTask.objects.filter(status__in=JobTask.run_status):
-        if task.ready_to_run:
-            # mark task instance as initialized
-            TaskThreaded(task).start()
+    jobs = Job.objects.filter(status__in=Job.unfinished).exclude(
+        id__in=JobTask.objects.filter(status=JobTask.initialized).values_list('job_id')
+    )
+    for job in jobs:
+        for task in JobTask.objects.filter(status__in=JobTask.run_status, job=job):
+            if task.ready_to_run:
+                # mark task instance as initialized
+                TaskThreaded(task).start()
 
 
 def finish_jobs():
@@ -82,9 +86,13 @@ def finish_jobs():
         if not plist:
             return False
         return all(plist)
-    jobs = Job.objects.filter(status__in=Job.unfinished).prefetch_related()
+
+
+    jobs = Job.objects.filter(status__in=Job.unfinished).exclude(
+        id__in=JobTask.objects.filter(status=JobTask.initialized).values_list('job_id')
+    )
     for job in jobs:
-        if custom_all([i.status in JobTask.ok_status for i in job.tasks.all()]):
+        if custom_all([i['status'] in JobTask.ok_status for i in job.tasks.all().values('status')]):
             job.status = Job.finished
             job.dt_end = timezone.now()
             job.save()
